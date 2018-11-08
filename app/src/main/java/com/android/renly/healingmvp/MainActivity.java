@@ -21,8 +21,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -63,6 +61,7 @@ public class MainActivity extends Activity {
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                Log.e("print","onResponse");
                 try {
                     tv.setText(response.body().string());
                 } catch (IOException e) {
@@ -72,7 +71,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onFailure(retrofit2.Call<ResponseBody> call, Throwable t) {
-
+                Log.e("print","onFailure " + t.getMessage());
             }
         });
 //                .subscribeOn(Schedulers.newThread())
