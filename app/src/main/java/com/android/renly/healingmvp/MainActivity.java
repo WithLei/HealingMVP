@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,6 +28,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import static android.content.ContentValues.TAG;
 
@@ -50,33 +52,42 @@ public class MainActivity extends Activity {
 
 
     private void TestRetrofit() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
+        // 初始化okhttp
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(9, TimeUnit.SECONDS) // 设置连续超时9s
+                .readTimeout(10, TimeUnit.SECONDS) // 设置读取超时10s
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(NetConfig.BASE_URL)
-//                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)
                 .build();
         APi mApi = retrofit.create(APi.class);
-        retrofit2.Call<ResponseBody> call = mApi.doLogin("1147158321@qq.com", "zl11471583210");
-        call.enqueue(new retrofit2.Callback<ResponseBody>() {
-            @Override
-            public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Log.e("print","onResponse");
-                try {
-                    tv.setText(response.body().string());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+//        retrofit2.Call<ResponseBody> call = mApi.doLogin("1147158321@qq.com", "zl11471583210");
+//        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+//                Log.e("print","onResponse");
+//                try {
+//                    tv.setText(response.body().string());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(retrofit2.Call<ResponseBody> call, Throwable t) {
+//                Log.e("print","onFailure " + t.getMessage());
+//            }
+//        });
 
-            @Override
-            public void onFailure(retrofit2.Call<ResponseBody> call, Throwable t) {
-                Log.e("print","onFailure " + t.getMessage());
-            }
-        });
-//                .subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(tv::setText);
+//        retrofit.create(APi.class)
+        mApi
+                .doLogin("1147158321@qq.com", "zl11471583210")
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(responseBody -> tv.setText(responseBody.string()), throwable -> Log.e("print",throwable.getMessage()));
     }
 
     private String post() throws IOException {

@@ -16,5 +16,5 @@ public interface APi {
     Call<List<Comment>> getComments();
 
     @POST("login")
-    Call<ResponseBody> doLogin(@Query("email") String email, @Query("password") String password);
+    Observable<ResponseBody> doLogin(@Query("email") String email, @Query("password") String password);
 }
